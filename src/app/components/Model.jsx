@@ -3,7 +3,8 @@ import React, { useRef } from 'react'
 import { Text, useGLTF, MeshTransmissionMaterial } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { useControls } from 'leva'
-
+import {faBolt} from '@danieloi/pro-solid-svg-icons'
+ 
 export default function Model() {
   const mesh = useRef()
   const { nodes } = useGLTF('./bolt.glb')
@@ -23,7 +24,7 @@ export default function Model() {
       <Text
         font='/fonts/snes-i.woff'
         fontSize={1.4}
-        letterSpacing={0.12}
+        letterSpacing={0.06}
         position={[0, 0, -1]}
         color='white'
       >
@@ -34,10 +35,32 @@ export default function Model() {
         font='/fonts/asap-c-r.woff'
         fontSize={0.2}
         letterSpacing={0.055}
-        position={[0, -1.2, -1]}
+        position={[-0.6, -1.2, -1]}
         color='white'
       >
-        Designer&#x26a1;Developer
+        Designer
+        
+        </Text>
+        
+        <Text
+        font='/fonts/segoe.woff'
+        fontSize={0.2}
+        position={[0, -1.2, -1]}
+        color='yellow'
+         
+      >
+        
+        &#x26a1; 
+        </Text>
+        <Text
+        font='/fonts/asap-c-r.woff'
+        fontSize={0.2}
+        letterSpacing={0.055}
+        position={[0.6, -1.2, -1]}
+        color='white'
+      >
+        
+        Developer
       </Text>
       <mesh ref={mesh} {...nodes.bolt}>
         <MeshTransmissionMaterial

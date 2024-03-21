@@ -1,0 +1,24 @@
+.navbar {
+  top: 20px;
+  right: 40px;
+  position: fixed;
+  height: 60px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: row;
+  font-family: 'Barlow';
+  color: white;
+  justify-content: flex-end;
+}
+
+.menuContainer {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+  text-transform: uppercase;
+}
+
+.menuItem, .menuButton {
+  color: rgb(162, 162, 162);
+  text-decoration: none;
+}

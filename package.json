@@ -19,6 +19,7 @@
     "leva": "^0.9.35",
     "next": "14.1.4",
     "react": "^18",
+    "react-curtains": "^1.0.10",
     "react-dom": "^18",
     "three": "^0.162.0"
   },

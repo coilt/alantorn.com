@@ -2,7 +2,7 @@
 import Navbar from './components/Navbar';
 import styles from './page.module.css'
 import dynamic from 'next/dynamic'
-import Slider from './components/slider/slider'
+import Slider from './components/slider/Slider'
 
 import { ReactLenis, useLenis } from '@studio-freight/react-lenis';
 

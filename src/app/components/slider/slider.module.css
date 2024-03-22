@@ -5,8 +5,7 @@
   flex-direction: column;
   margin: 0;
 }
-
-
+ 
 .slider {
   visibility: hidden;
   width: 95%;
@@ -17,6 +16,14 @@
   overflow: hidden;
   margin-bottom: 20px;
    
+}
+
+.sliderFullScreen {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+   
+     
 }
 
 .spacerAfter {

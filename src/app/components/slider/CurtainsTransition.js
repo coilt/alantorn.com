@@ -4,6 +4,7 @@ import { Curtains, Plane, Vec2, Vec3 } from 'curtainsjs'
 import { Power3, gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { vertexShader, fragmentShader } from '../lib/shaders/shaders'
+
 import './curtains.css'
 
 const CurtainsTransition = ({ children }) => {
@@ -232,8 +233,10 @@ const CurtainsTransition = ({ children }) => {
   return (
     <>
       <div id='canvas'></div>
-      <div className='plane-wrapper'>
-        <div>{children}</div>
+      <div id='planes'>
+        <div className='plane-wrapper'>
+          <div className='plane'>{children}</div>
+        </div>
       </div>
     </>
   )

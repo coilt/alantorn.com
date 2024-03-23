@@ -6,8 +6,7 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { useState, useRef, useEffect } from 'react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import CurtainsTransition from './CurtainsTransition';
- 
+import CurtainsTransition from './CurtainsTransition'
 
 import card1 from '../../../../public/card_01.png'
 import card2 from '../../../../public/card_02.png'
@@ -108,18 +107,18 @@ export default function Slider() {
 
   return (
     <main className={styles.main}>
-      <div className={styles.slider} ref={sliderRef}  data-project-name='cool-project'>
+      <div id='sliderContainer1' className={styles.slider} ref={sliderRef} data-project-name='cool-project'>
         <div className={styles.titleCard}>
           <p className={styles.labelType}>Branding</p>
         </div>
-        <Image src={card1} alt='card1'
-          style={{
-            width: '100%',
-            height: '100%',
-          }}
-        />
+        <CurtainsTransition>
+       <div  className={styles.plane} >
+       
+        <img src="/card_01_small_cr.png" crossOrigin="" data-sampler="planeTexture"/>
+    
       </div>
-
+      </CurtainsTransition>
+      </div>
       <div className={styles.slider} ref={slider2Ref}>
         <div className={styles.titleCard}>
           <p className={styles.labelTypeRed}>Branding</p>

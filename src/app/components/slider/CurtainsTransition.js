@@ -1,13 +1,13 @@
 'use client'
-import { useRef } from 'react'
+import { Children, useRef } from 'react'
 import { Curtains, Plane, Vec2, Vec3 } from 'curtainsjs'
 import { Power3, gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { vertexShader, fragmentShader } from '../lib/shaders/shaders'
  
 import './curtains.css'
-
-const CurtainsTransition = () => {
+ 
+  const CurtainsTransition = ({ children }) => {
   const curtainsRef = useRef()
 
   useGSAP(() => {
@@ -232,16 +232,14 @@ const CurtainsTransition = () => {
 
   return (
     <>
-      <div id='canvas'></div>
-      <div id='planes'>
-        <div className='plane-wrapper'>
-          <div className='plane'>
-            <img src='/1.jpg' crossOrigin='' data-sampler='planeTexture' />
-          </div>
+      <div id="canvas"></div>
+      <div id="planes">
+        <div className="plane-wrapper">
+          <div className="plane">{children}</div>
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
 export default CurtainsTransition

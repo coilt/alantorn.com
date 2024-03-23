@@ -2,7 +2,7 @@
 import Navbar from './components/Navbar'
 import styles from './page.module.css'
 import dynamic from 'next/dynamic'
-import Slider from './components/slider/Slider'
+import SliderAnimation from './components/slider/SliderAnimation'
 import { ReactLenis, useLenis } from '@studio-freight/react-lenis'
 import CurtainsContent from './components/slider/CurtainsContent' 
 const Hero = dynamic(() => import('./components/Hero'), {
@@ -19,7 +19,7 @@ export default function Home() {
         <div className={styles.heroContainer}>
           <Hero /> <div className={styles.zoomImage}> </div>
         </div>
-        <Slider />  
+        <SliderAnimation />  
       </main>
     </ReactLenis>
   )

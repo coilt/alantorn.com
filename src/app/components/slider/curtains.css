@@ -1,0 +1,75 @@
+#canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+      z-index: 20;
+      opacity: 0;
+      transition: opacity 0.5s ease-in;
+      pointer-events: none;
+      background-color: steelblue;
+  }
+
+  .planes-loaded #canvas {
+      opacity: 1;
+  }
+  
+  #planes {
+      overflow: hidden;
+      display: flex;
+      flex-wrap: wrap;
+      opacity: 0;
+      margin: 15vh 0;
+      background-color: gray;
+
+      transition: opacity 0.5s ease-in;
+  }
+
+  .planes-loaded #planes {
+      opacity: 1;
+  }
+
+  .plane-wrapper {
+      position: relative;
+
+      width: 45%;
+      height: 60vh;
+      margin: 0 5% 0 0;
+  }
+
+  .plane-wrapper:nth-child(even) {
+      margin: 15vh 0 0 5%;
+  }
+
+  .plane {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      cursor: pointer;
+      background-color: aquamarine;
+  }
+ 
+  .plane img {
+      display: none;
+  }
+ 
+  .no-curtains .plane-title {
+      z-index: 1;
+  }
+
+  .no-curtains .plane {
+      display: flex;
+      overflow: hidden;
+  }
+
+  .no-curtains .plane img {
+      display: block;
+      min-width: 100%;
+      min-height: 100%;
+      object-fit: cover;
+  }
+
+  

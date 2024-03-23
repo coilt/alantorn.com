@@ -1,0 +1,51 @@
+.container {
+  position: relative;
+  z-index: 15;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 40px 0 0 0;
+  background-color: rgb(19, 19, 19);
+}
+
+.planesContainer {
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  opacity: 0;
+  margin: 15vh 0;
+  transition: opacity 0.5s ease-in;
+  background-color: blue;
+}
+
+.planeWrapper {
+  position: relative;
+  width: 45%;
+  height: 60vh;
+  margin: 0 5% 0 0;
+  background-color: red;
+}
+
+.plane {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  cursor: pointer;
+   
+  background-size: cover;
+  background-position: center;
+  background-color: aqua;
+  width: 200px;
+  height: 600px;
+}
+
+.curtains-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+}

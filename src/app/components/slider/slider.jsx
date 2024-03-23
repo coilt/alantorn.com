@@ -4,8 +4,9 @@ import { useRouter } from 'next/navigation'
 import styles from './slider.module.css'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import CurtainsTransition from './CurtainsTransition';
  
 
 import card1 from '../../../../public/card_01.png'
@@ -15,12 +16,17 @@ import card4 from '../../../../public/card_04.png'
 import card5 from '../../../../public/card_05.jpg'
 
 export default function Slider() {
+  const [pixelRatio, setPixelRatio] = useState(0)
   const sliderRef = useRef(null)
   const slider2Ref = useRef(null)
   const slider3Ref = useRef(null)
   const slider4Ref = useRef(null)
   const slider5Ref = useRef(null)
   const router = useRouter()
+
+  useEffect(() => {
+    setPixelRatio(Math.min(1.5, window.devicePixelRatio))
+  }, [])
 
   useGSAP(() => {
     gsap.registerPlugin(ScrollTrigger)
@@ -50,14 +56,19 @@ export default function Slider() {
         ease: 'power3',
         width: '100vw',
         height: '100vh',
-        onStart: () => {
-          slider.classList.add('sliderFullScreen')
-        },
+        // onStart: () => {
+        //   slider.classList.add('sliderFullScreen')
+        // },
         onComplete: () => {
           const featuredProjectName =
             slider.dataset.projectName || 'default-project-name'
           const url = `/featured/${featuredProjectName}`
-          document.querySelector('.transition-trigger').click()
+          const transitionTrigger = document.querySelector(
+            '.transition-trigger'
+          )
+          if (transitionTrigger) {
+            transitionTrigger.click()
+          }
           router.push(url)
         },
       })
@@ -96,89 +107,81 @@ export default function Slider() {
   })
 
   return (
-     
-        <main className={styles.main}>
-          <div
-            className={styles.slider}
-            ref={sliderRef}
-            data-project-name='cool-project'
-          >
-            <div className={styles.titleCard}>
-              <p className={styles.labelType}>Branding</p>
-            </div>
-            <Image
-              src={card1}
-              alt='card1'
-              style={{
-                width: '100%',
-                height: '100%',
-              }}
-            />
-          </div>
+    <main className={styles.main}>
+      <div className={styles.slider} ref={sliderRef}  data-project-name='cool-project'>
+        <div className={styles.titleCard}>
+          <p className={styles.labelType}>Branding</p>
+        </div>
+        <Image src={card1} alt='card1'
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+        />
+      </div>
 
-          <div className={styles.slider} ref={slider2Ref}>
-            <div className={styles.titleCard}>
-              <p className={styles.labelTypeRed}>Branding</p>
-            </div>
-            <Image
-              src={card2}
-              alt='card2'
-              className={styles.heroImage}
-              style={{
-                width: '100%',
-                height: '100%',
-              }}
-            />
-          </div>
+      <div className={styles.slider} ref={slider2Ref}>
+        <div className={styles.titleCard}>
+          <p className={styles.labelTypeRed}>Branding</p>
+        </div>
+        <Image
+          src={card2}
+          alt='card2'
+          className={styles.heroImage}
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+        />
+      </div>
 
-          <div className={styles.slider} ref={slider3Ref}>
-            <div className={styles.titleCard}>
-              <p className={styles.labelTypeViolet}>Branding</p>
-            </div>
-            <Image
-              src={card3}
-              alt='card3'
-              className={styles.heroImage}
-              style={{
-                width: '100%',
-                height: '100%',
-              }}
-            />
-          </div>
-          <div className={styles.slider} ref={slider4Ref}>
-            <div className={styles.titleCard}>
-              <p className={styles.labelTypeRed}>Pitch Deck</p>
-            </div>
-            <Image
-              src={card4}
-              alt='card4'
-              className={styles.heroImage}
-              style={{
-                width: '100%',
-                height: '100%',
-              }}
-            />
-          </div>
-          <div className={styles.slider} ref={slider5Ref}>
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className={styles.heroVideo} // Assuming you have a class for styling the video
-              style={{
-                width: '100%',
-                height: '100%',
-              }}
-              width={1920}
-              height={1080}
-            >
-              <source src='/pearlcut.mp4' type='video/mp4' />
-              Your browser does not support the video tag.
-            </video>
-          </div>
-          <div className={styles.spacerAfter}></div>
-        </main>
-      
+      <div className={styles.slider} ref={slider3Ref}>
+        <div className={styles.titleCard}>
+          <p className={styles.labelTypeViolet}>Branding</p>
+        </div>
+        <Image
+          src={card3}
+          alt='card3'
+          className={styles.heroImage}
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+        />
+      </div>
+      <div className={styles.slider} ref={slider4Ref}>
+        <div className={styles.titleCard}>
+          <p className={styles.labelTypeRed}>Pitch Deck</p>
+        </div>
+        <Image
+          src={card4}
+          alt='card4'
+          className={styles.heroImage}
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+        />
+      </div>
+      <div className={styles.slider} ref={slider5Ref}>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className={styles.heroVideo} // Assuming you have a class for styling the video
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+          width={1920}
+          height={1080}
+        >
+          <source src='/pearlcut.mp4' type='video/mp4' />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <div className={styles.spacerAfter}></div>
+    </main>
   )
 }

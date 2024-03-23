@@ -1,133 +1,247 @@
 'use client'
-import { Curtains, useCurtains } from 'react-curtains';
-import { gsap } from 'gsap';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react'
+import { Curtains, Plane, Vec2, Vec3 } from 'curtainsjs'
+import { Power3, gsap } from 'gsap'
+import { useGSAP } from '@gsap/react'
+import { vertexShader, fragmentShader } from '../lib/shaders/shaders'
+ 
+import './curtains.css'
 
-const CurtainsTransition = ({ children, onComplete }) => {
-  const curtains = useCurtains();
-  const planeRef = useRef(null);
+const CurtainsTransition = () => {
+  const curtainsRef = useRef()
 
-  useEffect(() => {
-    if (curtains) {
-      const plane = curtains.addPlane(planeRef.current, {
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
-        widthSegments: 10,
-        heightSegments: 10,
-        uniforms: {
-          transition: {
-            name: 'uTransition',
-            type: '1f',
-            value: 0,
-          },
+  useGSAP(() => {
+    const mouse = new Vec2()
+
+    const params = {
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+      widthSegments: 12,
+      heightSegments: 12,
+      uniforms: {
+        time: {
+          name: 'uTime',
+          type: '1f',
+          value: 0,
         },
-      });
-
-      planeRef.current = plane;
+        fullscreenTransition: {
+          name: 'uTransition',
+          type: '1f',
+          value: 0,
+        },
+        mousePosition: {
+          name: 'uMousePosition',
+          type: '2f',
+          value: mouse,
+        },
+      },
     }
-  }, [curtains]);
 
-  const handleTransitionComplete = () => {
-    onComplete();
-  };
+    const curtains = new Curtains({
+      container: 'canvas',
+      pixelRatio: Math.min(1.5, window.devicePixelRatio),
+      autoRender: false,
+    })
 
-  const startTransition = () => {
-    if (planeRef.current) {
-      const transitionTimeline = gsap.timeline({
-        onComplete: handleTransitionComplete,
-      });
+    curtainsRef.current = curtains
 
-      transitionTimeline.to(planeRef.current.uniforms.transition, {
-        duration: 1,
-        value: 1,
-        ease: 'power3.inOut',
-      });
+    curtains
+      .onError(() => {
+        console.log('Curtains.js error occurred')
+        document.body.classList.add('no-curtains', 'planes-loaded')
+      })
+      .onContextLost(() => {
+        console.log('WebGL context lost')
+        curtains.restoreContext()
+      })
+
+    gsap.ticker.add(curtains.render.bind(curtains))
+
+    const planes = []
+    const planeElements = document.getElementsByClassName('plane')
+
+    for (let i = 0; i < planeElements.length; i++) {
+      const plane = new Plane(curtains, planeElements[i], params)
+      planes.push(plane)
+      handlePlanes(i)
     }
-  };
+
+    // handle all the planes
+    function handlePlanes(index) {
+      const plane = planes[index]
+
+      plane
+        .onReady(() => {
+          plane.textures[0].setScale(new Vec2(1.5, 1.5))
+
+          // apply parallax on load
+          applyPlanesParallax(plane)
+
+          // once everything is ready, display everything
+          if (index === planes.length - 1) {
+            document.body.classList.add('planes-loaded')
+          }
+
+          plane.htmlElement.addEventListener('click', (e) => {
+            onPlaneClick(e, plane)
+          })
+        })
+        .onAfterResize(() => {
+          // if plane is displayed fullscreen, update its scale and translations
+          if (plane.userData.isFullscreen) {
+            const planeBoundingRect = plane.getBoundingRect()
+            const curtainBoundingRect = curtains.getBoundingRect()
+
+            plane.setScale(
+              new Vec2(
+                curtainBoundingRect.width / planeBoundingRect.width,
+                curtainBoundingRect.height / planeBoundingRect.height
+              )
+            )
+
+            plane.setRelativeTranslation(
+              new Vec3(
+                (-1 * planeBoundingRect.left) / curtains.pixelRatio,
+                (-1 * planeBoundingRect.top) / curtains.pixelRatio,
+                0
+              )
+            )
+          }
+
+          // apply new parallax values after resize
+          applyPlanesParallax(plane)
+        })
+        .onRender(() => {
+          plane.uniforms.time.value++
+        })
+    }
+
+    function applyPlanesParallax(plane) {
+      // calculate the parallax effect
+      // get our window size
+      const sceneBoundingRect = curtains.getBoundingRect()
+      // get our plane center coordinate
+      const planeBoundingRect = plane.getBoundingRect()
+      const planeOffsetTop =
+        planeBoundingRect.top + planeBoundingRect.height / 2
+      // get a float value based on window height (0 means the plane is centered)
+      const parallaxEffect =
+        (planeOffsetTop - sceneBoundingRect.height / 2) /
+        sceneBoundingRect.height
+
+      // set texture offset
+      const texture = plane.textures[0]
+      texture.offset.y = (1 - texture.scale.y) * 0.5 * parallaxEffect
+    }
+
+    // GALLERY
+
+    const galleryState = {
+      fullscreenThumb: false, // is actually displaying a fullscreen image
+      openTween: null,
+      closeTween: null,
+    }
+
+    function onPlaneClick(event, plane) {
+      // if no planes are already displayed fullscreen
+      if (!galleryState.fullscreenThumb) {
+        // set fullscreen state
+        galleryState.fullscreenThumb = true
+        document.body.classList.add('is-fullscreen')
+
+        // flag this plane
+        plane.userData.isFullscreen = true
+
+        // put plane in front
+        plane.setRenderOrder(1)
+
+        // start ripple effect from mouse position, and tween it to center
+        const startMousePostion = plane.mouseToPlaneCoords(mouse)
+        plane.uniforms.mousePosition.value.copy(startMousePostion)
+        plane.uniforms.time.value = 0
+
+        // we'll be using bounding rect values to tween scale and translation values
+        const planeBoundingRect = plane.getBoundingRect()
+        const curtainBoundingRect = curtains.getBoundingRect()
+
+        // starting values
+        let animation = {
+          scaleX: 1,
+          scaleY: 1,
+          translationX: 0,
+          translationY: 0,
+          transition: 0,
+          textureScale: 1.5,
+          mouseX: startMousePostion.x,
+          mouseY: startMousePostion.y,
+        }
+
+        // create vectors only once and use them later on during tween onUpdate callback
+        const newScale = new Vec2()
+        const newTranslation = new Vec3()
+
+        // kill tween
+        if (galleryState.openTween) {
+          galleryState.openTween.kill()
+        }
+
+        // we want to take top left corner as our plane transform origin
+        plane.setTransformOrigin(newTranslation)
+
+        galleryState.openTween = gsap.to(animation, 2, {
+          scaleX: curtainBoundingRect.width / planeBoundingRect.width,
+          scaleY: curtainBoundingRect.height / planeBoundingRect.height,
+          translationX: (-1 * planeBoundingRect.left) / curtains.pixelRatio,
+          translationY: (-1 * planeBoundingRect.top) / curtains.pixelRatio,
+          transition: 1,
+          textureScale: 1,
+          mouseX: 0,
+          mouseY: 0,
+          ease: Power3.easeInOut,
+          onUpdate: function () {
+            // plane scale
+            newScale.set(animation.scaleX, animation.scaleY)
+            plane.setScale(newScale)
+
+            // plane translation
+            newTranslation.set(
+              animation.translationX,
+              animation.translationY,
+              0
+            )
+            plane.setRelativeTranslation(newTranslation)
+
+            // texture scale
+            newScale.set(animation.textureScale, animation.textureScale)
+            plane.textures[0].setScale(newScale)
+
+            // transition value
+            plane.uniforms.fullscreenTransition.value = animation.transition
+
+            // apply parallax to change texture offset
+            applyPlanesParallax(plane)
+          },
+        })
+      }
+    }
+
+    return () => {
+      curtains.dispose()
+    }
+  }, [])
 
   return (
     <>
-      <div ref={planeRef} />
-      {children}
-      <div className="transition-trigger" onClick={startTransition} />
+      <div id='canvas'></div>
+      <div id='planes'>
+        <div className='plane-wrapper'>
+          <div className='plane'>
+            <img src='/1.jpg' crossOrigin='' data-sampler='planeTexture' />
+          </div>
+        </div>
+      </div>
     </>
-  );
-};
-
-
-const vertexShader = `
-    precision mediump float;
-
-    // default mandatory variables
-    attribute vec3 aVertexPosition;
-    attribute vec2 aTextureCoord;
-
-    uniform mat4 uMVMatrix;
-    uniform mat4 uPMatrix;
-
-    uniform mat4 planeTextureMatrix;
-
-    // custom variables
-    varying vec3 vVertexPosition;
-    varying vec2 vTextureCoord;
-    
-    uniform vec2 uMousePosition;
-    uniform float uTime;
-    uniform float uTransition;
-
-    void main() {
-        vec3 vertexPosition = aVertexPosition;
-        
-        // convert uTransition from [0,1] to [0,1,0]
-        float transition = 1.0 - abs((uTransition * 2.0) - 1.0);
-        
-        //vertexPosition.x *= (1 + transition * 2.25);
-        
-        // get the distance between our vertex and the mouse position
-        float distanceFromMouse = distance(uMousePosition, vec2(vertexPosition.x, vertexPosition.y));
-
-        // calculate our wave effect
-        float waveSinusoid = cos(5.0 * (distanceFromMouse - (uTime / 30.0)));
-
-        // attenuate the effect based on mouse distance
-        float distanceStrength = (0.4 / (distanceFromMouse + 0.4));
-
-        // calculate our distortion effect
-        float distortionEffect = distanceStrength * waveSinusoid * 0.33;
-
-        // apply it to our vertex position
-        vertexPosition.z +=  distortionEffect * -transition;
-        vertexPosition.x +=  (distortionEffect * transition * (uMousePosition.x - vertexPosition.x));
-        vertexPosition.y +=  distortionEffect * transition * (uMousePosition.y - vertexPosition.y);
-
-        gl_Position = uPMatrix * uMVMatrix * vec4(vertexPosition, 1.0);
-
-        // varyings
-        vVertexPosition = vertexPosition;
-        vTextureCoord = (planeTextureMatrix * vec4(aTextureCoord, 0.0, 1.0)).xy;
-    }
-`
-
-const fragmentShader = `
-        precision mediump float;
-
-        varying vec3 vVertexPosition;
-        varying vec2 vTextureCoord;
-
-        uniform sampler2D planeTexture;
-
-        void main( void ) {
-            // apply our texture
-            vec4 finalColor = texture2D(planeTexture, vTextureCoord);
-            
-            // fake shadows based on vertex position along Z axis
-            finalColor.rgb += clamp(vVertexPosition.z, -1.0, 0.0) * 0.75;
-            // fake lights based on vertex position along Z axis
-            finalColor.rgb += clamp(vVertexPosition.z, 0.0, 1.0) * 0.75;
-        
-            // just display our texture
-            gl_FragColor = finalColor;
-        }
-    `
+  )
+}
 
 export default CurtainsTransition

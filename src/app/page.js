@@ -4,7 +4,7 @@ import styles from './page.module.css'
 import dynamic from 'next/dynamic'
 import Slider from './components/slider/slider'
 import { ReactLenis, useLenis } from '@studio-freight/react-lenis'
-import CurtainsContent from './components/slider/CurtainsContent' 
+ 
 const Hero = dynamic(() => import('./components/Hero'), {
   ssr: false,
 })

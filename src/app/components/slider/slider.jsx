@@ -40,7 +40,7 @@ export default function Slider() {
       const scrollToPosition = scrollTrigger.start;
 
       gsap.to(window, {
-        duration: 1,
+        duration: 0.5,
         scrollTo: {
           y: scrollToPosition,
           autoKill: false,

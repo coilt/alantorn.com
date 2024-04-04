@@ -12,12 +12,12 @@ import {
   transformations,
   createVertex,
   fragmentShader,
-} from './shaders/shaders'
+} from './lib/shaders/shaders'
 
 // choose activation type
 const vertexShader = createVertex
 
-import '../base.css'
+import './lib/base.css'
 
 const GridToFullScreen = () => {
   const triggerItemRef = useRef(null)
@@ -31,6 +31,8 @@ const GridToFullScreen = () => {
   const meshScaleRef = useRef(new Vector2(1, 1))
   const meshPositionRef = useRef(new Vector2(0, 0))
   const viewSizeRef = useRef(new Vector2(1, 1))
+
+  const imageRefs = useRef([]);
 
   const getViewSize = (camera) => {
     const fovInRadians = (camera.fov * Math.PI) / 180
@@ -64,7 +66,7 @@ const GridToFullScreen = () => {
     }
   }, [rect])
 
-  const handleTriggerItemClick = (camera) => {
+  const handleTriggerItemClick = (camera, imageUrl, dimensions) => {
     console.log('item click passed')
     if (meshRef.current && rect && meshMaterialRef.current) {
       const { width, height, left, top } = rect
@@ -123,7 +125,7 @@ const GridToFullScreen = () => {
   // R3F scene
   function Setup({ meshRef }) {
     const [meshVisible, setMeshVisible] = useState(false);
-    const [textureMap] = useTexture(['./img/4_large.jpg'])
+    const [textureMap] = useTexture(['/card_01.png'])
     const camera = useThree((state) => state.camera)
     const meshMaterial = useRef(null)
 
@@ -222,14 +224,11 @@ const GridToFullScreen = () => {
             />
           </Suspense>
         </Canvas>
-        <div className='itemContainer'>
-          <img
-            className='triggerItem'
-            ref={triggerItemRef}
-            src='img/4_large.jpg'
-          />
-        </div>
-      </div>
+        <Slider
+          onSliderClick={(event) => handleSliderClick(event, handleMeshAnimation)}
+          onImageRef={(index, ref) => (imageRefs.current[index] = ref)}
+        />
+              </div>
     </>
   )
 }

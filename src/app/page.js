@@ -4,7 +4,8 @@ import styles from './page.module.css'
 import dynamic from 'next/dynamic'
 import Slider from './components/slider/slider'
 import { ReactLenis, useLenis } from '@studio-freight/react-lenis'
- 
+import GridToFullScreen from './components/GridToFullScreen' 
+
 const Hero = dynamic(() => import('./components/Hero'), {
   ssr: false,
 })
@@ -19,7 +20,7 @@ export default function Home() {
         <div className={styles.heroContainer}>
           
         </div>
-        <Slider />  
+        <GridToFullScreen />  
       </main>
     </ReactLenis>
   )

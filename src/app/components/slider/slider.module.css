@@ -100,15 +100,4 @@
 .plane {
   cursor: pointer;
 }
-
-#canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100vw;
-  z-index: 20;
-  opacity: 0;
-  transition: opacity 0.5s ease-in;
-  pointer-events: none;
-}
+ 

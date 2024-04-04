@@ -26,6 +26,7 @@ const GridToFullScreen = () => {
   const [rect, setRect] = useState(null)
   const uniformsRef = useRef()
   const canvasRef = useRef()
+  const [camera, setCamera] = useState(null);
 
   // mesh scaling refs:
   const meshScaleRef = useRef(new Vector2(1, 1))
@@ -35,6 +36,9 @@ const GridToFullScreen = () => {
   const imageRefs = useRef([]);
 
   const getViewSize = (camera) => {
+    if (!camera) return { width: 1, height: 1 }; // Return default values if camera is undefined
+
+
     const fovInRadians = (camera.fov * Math.PI) / 180
     const height = Math.abs(camera.position.z * Math.tan(fovInRadians / 2) * 2)
     return { width: height * camera.aspect, height }
@@ -66,7 +70,7 @@ const GridToFullScreen = () => {
     }
   }, [rect])
 
-  const handleTriggerItemClick = (camera, imageUrl, dimensions) => {
+  const handleTriggerItemClick = (camera) => {
     console.log('item click passed')
     if (meshRef.current && rect && meshMaterialRef.current) {
       const { width, height, left, top } = rect
@@ -107,7 +111,9 @@ const GridToFullScreen = () => {
       )
 
       // hide the trigger item immediately
-      triggerItemRef.current.style.display = 'none'
+    if (triggerItemRef.current) {
+      triggerItemRef.current.style.display = 'none';
+    }
 
       // bring the canvas to a higher z-index
       canvas.style.zIndex = '2'
@@ -122,11 +128,27 @@ const GridToFullScreen = () => {
     }
   }
 
+  const handleImageClick = (index) => {
+    const image = imageRefs.current[index];
+    if (image) {
+      setRect(image.getBoundingClientRect());
+      handleTriggerItemClick();
+    }
+  };
+
+
   // R3F scene
   function Setup({ meshRef }) {
     const [meshVisible, setMeshVisible] = useState(false);
     const [textureMap] = useTexture(['/card_01.png'])
-    const camera = useThree((state) => state.camera)
+    const camera = useThree((state) => state.camera);
+    
+    useEffect(() => {
+      setCamera(camera);
+    }, [camera]);
+  
+    
+    
     const meshMaterial = useRef(null)
 
     const activationType = 'top'
@@ -217,16 +239,16 @@ const GridToFullScreen = () => {
           style={{ width: '100%', height: '100%', position: 'absolute' }}
         >
           <Suspense fallback={null}>
-            <Setup meshRef={meshRef}
+          <Setup meshRef={meshRef} meshMaterialRef={meshMaterialRef} setCamera={setCamera} />            
             
             
             
-            />
           </Suspense>
         </Canvas>
         <Slider
-          onSliderClick={(event) => handleSliderClick(event, handleMeshAnimation)}
           onImageRef={(index, ref) => (imageRefs.current[index] = ref)}
+          onImageClick={handleImageClick}
+           
         />
               </div>
     </>

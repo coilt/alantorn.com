@@ -14,7 +14,7 @@ import card3 from '../../../../public/card_03.png'
 import card4 from '../../../../public/card_04.png'
 import card5 from '../../../../public/card_05.jpg'
 
-export default function Slider({ onSliderClick, onImageRef }) {
+export default function Slider({ onImageRef, onImageClick }) {
   const cardImages = [card1, card2, card3, card4, card5]
 
   const sliderRefs = [
@@ -25,48 +25,43 @@ export default function Slider({ onSliderClick, onImageRef }) {
     useRef(null),
   ]
 
- 
   const imageRefs = sliderRefs.map(() => useRef(null))
   const handleImageRef = (index, ref) => {
     // Pass the image ref to the GridToFullScreen component
     onImageRef(index, ref)
   }
 
+  const router = useRouter();
 
-  const router = useRouter()
+  const handleSliderClick = (event, index) => {
+    const slider = event.currentTarget;
 
-  useGSAP(() => {
-    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
-
-    const sliders = sliderRefs.map((ref) => ref.current)
-
-    const handleSliderClick = (event) => {
-      const slider = event.currentTarget
-      const index = sliders.indexOf(slider)
-
-      const scrollTrigger = ScrollTrigger.getById(`slider-${index}-trigger`)
-      const scrollToPosition = scrollTrigger.start
+    const scrollTrigger = ScrollTrigger.getById(`slider-${index}-trigger`);
+    
+    if (scrollTrigger) {
+      const scrollToPosition = scrollTrigger.start;
 
       gsap.to(window, {
-        duration: 0.5,
+        duration: 1,
         scrollTo: {
           y: scrollToPosition,
           autoKill: false,
         },
         ease: 'power3',
         onComplete: () => {
-          // Trigger the R3F animation here
-          const imageUrl = `card${index + 1}` // Adjust the image URL as needed
-          const dimensions = {
-            width: slider.offsetWidth,
-            height: slider.offsetHeight,
-          }
-          // Pass the necessary data to the GridToFullScreen component to update the animation
-          // For example, you can use a callback function or a state management solution
-          onSliderClick(imageUrl, dimensions)
+          onImageClick(index);
         },
-      })
+      });
+    } else {
+      console.warn(`ScrollTrigger not found for slider-${index}-trigger`);
+      onImageClick(index);
     }
+  };
+
+  useGSAP(() => {
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+    const sliders = sliderRefs.map((ref) => ref.current);
 
     sliders.forEach((slider, index) => {
       const timeline = gsap.timeline({
@@ -79,13 +74,13 @@ export default function Slider({ onSliderClick, onImageRef }) {
           start: 'top 10%',
           end: `+=${slider.offsetHeight}`,
           onLeave: () => {
-            slider.style.visibility = 'hidden'
+            slider.style.visibility = 'hidden';
           },
           onEnterBack: () => {
-            slider.style.visibility = 'visible'
+            slider.style.visibility = 'visible';
           },
         },
-      })
+      });
 
       // rotating slider array
       timeline.fromTo(
@@ -97,11 +92,9 @@ export default function Slider({ onSliderClick, onImageRef }) {
           visibility: 'visible',
         },
         { scale: 0.7, filter: 'blur(6px)', rotationX: 30 }
-      )
-
-      slider.addEventListener('click', handleSliderClick)
-    })
-  })
+      );
+    });
+  });
 
   return (
     <main className='main'>
@@ -111,6 +104,7 @@ export default function Slider({ onSliderClick, onImageRef }) {
           id={`slider-${index}`}
           className='slider'
           ref={ref}
+          onClick={(event) => handleSliderClick(event, index)}
           data-project-name={`cool-project-${index + 1}`}
         >
           <div className='titleCard'>
@@ -125,6 +119,7 @@ export default function Slider({ onSliderClick, onImageRef }) {
               height: 'auto',
             }}
             ref={(ref) => onImageRef(index, ref)}
+            
           />
         </div>
       ))}

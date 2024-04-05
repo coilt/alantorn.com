@@ -1,7 +1,7 @@
 'use client'
 
 import React, { Suspense, useRef, useState, useEffect, useMemo } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
+import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import { Vector2, Vector4, Uniform, DoubleSide } from 'three'
 import { gsap } from 'gsap'
@@ -26,18 +26,19 @@ const GridToFullScreen = () => {
   const [rect, setRect] = useState(null)
   const uniformsRef = useRef()
   const canvasRef = useRef()
-  const [camera, setCamera] = useState(null);
+  const [camera, setCamera] = useState(null)
 
   // mesh scaling refs:
   const meshScaleRef = useRef(new Vector2(1, 1))
   const meshPositionRef = useRef(new Vector2(0, 0))
   const viewSizeRef = useRef(new Vector2(1, 1))
 
-  const imageRefs = useRef([]);
+  const imageRefs = useRef([])
+
+  const [meshVisible, setMeshVisible] = useState(Array(5).fill(false))
 
   const getViewSize = (camera) => {
-    if (!camera) return { width: 1, height: 1 }; // Return default values if camera is undefined
-
+    if (!camera) return { width: 1, height: 1 } // Return default values if camera is undefined
 
     const fovInRadians = (camera.fov * Math.PI) / 180
     const height = Math.abs(camera.position.z * Math.tan(fovInRadians / 2) * 2)
@@ -70,9 +71,9 @@ const GridToFullScreen = () => {
     }
   }, [rect])
 
-  const handleTriggerItemClick = (camera) => {
-    console.log('item click passed')
-    if (meshRef.current && rect && meshMaterialRef.current) {
+  const handleTriggerItemClick = () => {
+    console.log('handleTriggerItemClick called')
+    if (meshRef.current && rect && meshMaterialRef.current && camera) {
       const { width, height, left, top } = rect
 
       const canvas = canvasRef.current
@@ -110,45 +111,62 @@ const GridToFullScreen = () => {
         heightViewUnit
       )
 
+      //   // hide the trigger item immediately
+      // if (triggerItemRef.current) {
+      //   triggerItemRef.current.style.display = 'none';
+      // }
+
       // hide the trigger item immediately
-    if (triggerItemRef.current) {
-      triggerItemRef.current.style.display = 'none';
-    }
+      triggerItemRef.current.style.visibility = 'hidden'
 
       // bring the canvas to a higher z-index
       canvas.style.zIndex = '2'
 
       // trigger the scaling animation
-      meshMaterialRef.current.uniforms.uProgress.value = 0
+      // meshMaterialRef.current.uniforms.uProgress.value = 0
+
       gsap.to(meshMaterialRef.current.uniforms.uProgress, {
         value: 1,
         duration: 1,
-        ease: 'power2.Out',
+        ease: 'power2.out',
+        onComplete: () => {
+          console.log('GSAP mesh animation complete')
+        },
       })
     }
+
+    // Set mesh visible for the clicked index
+    setMeshVisible(index);
+
+    // console.log('meshRef.current:', meshRef.current)
+    // console.log('meshMaterialRef.current:', meshMaterialRef.current)
+    // console.log('meshMaterialRef.current.uniforms:', meshMaterialRef.current.uniforms)
   }
 
   const handleImageClick = (index) => {
-    const image = imageRefs.current[index];
+    console.log('handleImageClick called')
+    const image = imageRefs.current[index]
     if (image) {
-      setRect(image.getBoundingClientRect());
-      handleTriggerItemClick();
+      setRect(image.getBoundingClientRect())
+      handleTriggerItemClick()
     }
-  };
-
+  }
 
   // R3F scene
-  function Setup({ meshRef }) {
-    const [meshVisible, setMeshVisible] = useState(false);
+  function Setup({ meshRef, meshMaterialRef, setCamera, onTriggerItemClick }) {
+    // const [meshVisible, setMeshVisible] = useState(false)
     const [textureMap] = useTexture(['/card_01.png'])
-    const camera = useThree((state) => state.camera);
-    
+    const camera = useThree((state) => state.camera)
+
     useEffect(() => {
-      setCamera(camera);
-    }, [camera]);
-  
-    
-    
+      setCamera(camera)
+    }, [camera])
+
+    useFrame((state, delta) => {
+      meshRef.current.scale.x += delta
+      meshRef.current.scale.y += delta
+    })
+
     const meshMaterial = useRef(null)
 
     const activationType = 'top'
@@ -173,7 +191,7 @@ const GridToFullScreen = () => {
 
         // options uniforms
         uAmplitude: { value: 0.5 },
-    uFrequency: { value: 4.0 },
+        uFrequency: { value: 4.0 },
       }),
       [textureMap]
     )
@@ -181,7 +199,10 @@ const GridToFullScreen = () => {
     const activationFunction = activations[activationType]
     const transformationFunction = transformations[transformationType]()
 
-    const vertexShader = createVertex(activationFunction, transformationFunction);
+    const vertexShader = createVertex(
+      activationFunction,
+      transformationFunction
+    )
 
     useEffect(() => {
       const viewSize = getViewSize(camera)
@@ -197,35 +218,57 @@ const GridToFullScreen = () => {
       uniformsRef.current = uniforms
     }, [uniforms])
 
+    // useEffect(() => {
+    //   if (triggerItemRef.current) {
+    //     triggerItemRef.current.addEventListener('click', () => {
+    //       handleTriggerItemClick(camera)
+    //       setMeshVisible(true) // Set mesh visible
+    //     })
+    //   }
+
+    //   return () => {
+    //     if (triggerItemRef.current) {
+    //       triggerItemRef.current.removeEventListener('click', () =>
+    //         handleTriggerItemClick(camera)
+    //       )
+    //     }
+    //   }
+    // }, [camera, triggerItemRef])
+
     useEffect(() => {
       if (triggerItemRef.current) {
-        triggerItemRef.current.addEventListener('click', () => {
-          handleTriggerItemClick(camera);
-          setMeshVisible(true); // Set mesh visible
-        });
+        triggerItemRef.current.addEventListener('click', handleTriggerItemClick)
       }
-    
+
       return () => {
         if (triggerItemRef.current) {
-          triggerItemRef.current.removeEventListener('click', () =>
-            handleTriggerItemClick(camera)
-          );
+          triggerItemRef.current.removeEventListener(
+            'click',
+            handleTriggerItemClick
+          )
         }
-      };
-    }, [camera]);
+      }
+    }, [triggerItemRef])
 
     return (
       <>
-        <mesh ref={meshRef} position={[0, 0, 0]} visible={meshVisible}>
-          <planeGeometry args={[1, 1, 128, 128]} />
-          <shaderMaterial
-            ref={meshMaterialRef}
-            uniforms={uniforms}
-            vertexShader={vertexShader}
-            fragmentShader={fragmentShader}
-            side={DoubleSide}
-          />
-        </mesh>
+        {meshVisible.map((visible, index) => (
+          <mesh
+            key={index}
+            ref={meshRef}
+            position={[0, 0, 0]}
+            visible={meshVisible}
+          >
+            <planeGeometry args={[1, 1, 128, 128]} />
+            <shaderMaterial
+              ref={meshMaterialRef}
+              uniforms={uniforms}
+              vertexShader={vertexShader}
+              fragmentShader={fragmentShader}
+              side={DoubleSide}
+            />
+          </mesh>
+        ))}
       </>
     )
   }
@@ -239,18 +282,24 @@ const GridToFullScreen = () => {
           style={{ width: '100%', height: '100%', position: 'absolute' }}
         >
           <Suspense fallback={null}>
-          <Setup meshRef={meshRef} meshMaterialRef={meshMaterialRef} setCamera={setCamera} />            
-            
-            
-            
+            <Setup
+              meshRef={meshRef}
+              meshMaterialRef={meshMaterialRef}
+              setCamera={setCamera}
+            />
           </Suspense>
         </Canvas>
         <Slider
-          onImageRef={(index, ref) => (imageRefs.current[index] = ref)}
-          onImageClick={handleImageClick}
-           
+          onImageRef={(index, ref) => {
+            imageRefs.current[index] = ref
+            if (index === 0) {
+              triggerItemRef.current = ref
+            }
+          }}
+          // onImageClick={handleImageClick}
+          onTriggerItemClick={handleTriggerItemClick}
         />
-              </div>
+      </div>
     </>
   )
 }

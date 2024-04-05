@@ -31,15 +31,15 @@ export default function Slider({ onImageRef, onImageClick }) {
     onImageRef(index, ref)
   }
 
-  const router = useRouter();
+  const router = useRouter()
 
   const handleSliderClick = (event, index) => {
-    const slider = event.currentTarget;
+    const slider = event.currentTarget
 
-    const scrollTrigger = ScrollTrigger.getById(`slider-${index}-trigger`);
-    
+    const scrollTrigger = ScrollTrigger.getById(`slider-${index}-trigger`)
+
     if (scrollTrigger) {
-      const scrollToPosition = scrollTrigger.start;
+      const scrollToPosition = scrollTrigger.start
 
       gsap.to(window, {
         duration: 1,
@@ -49,19 +49,19 @@ export default function Slider({ onImageRef, onImageClick }) {
         },
         ease: 'power3',
         onComplete: () => {
-          onImageClick(index);
+          onImageClick(index)
         },
-      });
+      })
     } else {
-      console.warn(`ScrollTrigger not found for slider-${index}-trigger`);
-      onImageClick(index);
+      console.warn(`ScrollTrigger not found for slider-${index}-trigger`)
+      onImageClick(index)
     }
-  };
+  }
 
   useGSAP(() => {
-    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
 
-    const sliders = sliderRefs.map((ref) => ref.current);
+    const sliders = sliderRefs.map((ref) => ref.current)
 
     sliders.forEach((slider, index) => {
       const timeline = gsap.timeline({
@@ -74,13 +74,13 @@ export default function Slider({ onImageRef, onImageClick }) {
           start: 'top 10%',
           end: `+=${slider.offsetHeight}`,
           onLeave: () => {
-            slider.style.visibility = 'hidden';
+            slider.style.visibility = 'hidden'
           },
           onEnterBack: () => {
-            slider.style.visibility = 'visible';
+            slider.style.visibility = 'visible'
           },
         },
-      });
+      })
 
       // rotating slider array
       timeline.fromTo(
@@ -92,9 +92,9 @@ export default function Slider({ onImageRef, onImageClick }) {
           visibility: 'visible',
         },
         { scale: 0.7, filter: 'blur(6px)', rotationX: 30 }
-      );
-    });
-  });
+      )
+    })
+  })
 
   return (
     <main className='main'>
@@ -104,7 +104,7 @@ export default function Slider({ onImageRef, onImageClick }) {
           id={`slider-${index}`}
           className='slider'
           ref={ref}
-          onClick={(event) => handleSliderClick(event, index)}
+                    onClick={(event) => handleSliderClick(event, index)}
           data-project-name={`cool-project-${index + 1}`}
         >
           <div className='titleCard'>
@@ -121,6 +121,17 @@ export default function Slider({ onImageRef, onImageClick }) {
             ref={(ref) => onImageRef(index, ref)}
             
           />
+
+          {/* <img
+            className='triggerItem'
+            src={cardImages[index]}
+            alt={`card${index + 1}`}
+            style={{
+              width: '100%',
+              height: 'auto',
+            }}
+            ref={(ref) => onImageRef(index, ref)}
+          /> */}
         </div>
       ))}
     </main>

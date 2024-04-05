@@ -1,4 +1,5 @@
 'use client'
+import React, { useRef } from 'react'
 import Navbar from './components/Navbar'
 import styles from './page.module.css'
 import dynamic from 'next/dynamic'
@@ -11,6 +12,7 @@ const Hero = dynamic(() => import('./components/Hero'), {
 })
 
 export default function Home() {
+  const triggerItemRef = useRef(null);
   const lenis = useLenis(({ scroll }) => {})
   return (
     <ReactLenis root>
@@ -20,7 +22,8 @@ export default function Home() {
         <div className={styles.heroContainer}>
           
         </div>
-        <GridToFullScreen />  
+        <GridToFullScreen triggerItemRef={triggerItemRef} />  
+        <div ref={triggerItemRef}>Trigger Item</div>
       </main>
     </ReactLenis>
   )

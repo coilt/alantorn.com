@@ -35,7 +35,7 @@ const GridToFullScreen = () => {
 
   const imageRefs = useRef([])
 
-  const [meshVisible, setMeshVisible] = useState(Array(5).fill(false))
+ 
 
   const getViewSize = (camera) => {
     if (!camera) return { width: 1, height: 1 } // Return default values if camera is undefined
@@ -135,8 +135,7 @@ const GridToFullScreen = () => {
       })
     }
 
-    // Set mesh visible for the clicked index
-    setMeshVisible(index);
+ 
 
     // console.log('meshRef.current:', meshRef.current)
     // console.log('meshMaterialRef.current:', meshMaterialRef.current)
@@ -154,7 +153,7 @@ const GridToFullScreen = () => {
 
   // R3F scene
   function Setup({ meshRef, meshMaterialRef, setCamera, onTriggerItemClick }) {
-    // const [meshVisible, setMeshVisible] = useState(false)
+    const [meshVisible, setMeshVisible] = useState(false)
     const [textureMap] = useTexture(['/card_01.png'])
     const camera = useThree((state) => state.camera)
 
@@ -218,43 +217,43 @@ const GridToFullScreen = () => {
       uniformsRef.current = uniforms
     }, [uniforms])
 
-    // useEffect(() => {
-    //   if (triggerItemRef.current) {
-    //     triggerItemRef.current.addEventListener('click', () => {
-    //       handleTriggerItemClick(camera)
-    //       setMeshVisible(true) // Set mesh visible
-    //     })
-    //   }
-
-    //   return () => {
-    //     if (triggerItemRef.current) {
-    //       triggerItemRef.current.removeEventListener('click', () =>
-    //         handleTriggerItemClick(camera)
-    //       )
-    //     }
-    //   }
-    // }, [camera, triggerItemRef])
-
     useEffect(() => {
       if (triggerItemRef.current) {
-        triggerItemRef.current.addEventListener('click', handleTriggerItemClick)
+        triggerItemRef.current.addEventListener('click', () => {
+          handleTriggerItemClick(camera)
+          setMeshVisible(true) // Set mesh visible
+        })
       }
 
       return () => {
         if (triggerItemRef.current) {
-          triggerItemRef.current.removeEventListener(
-            'click',
-            handleTriggerItemClick
+          triggerItemRef.current.removeEventListener('click', () =>
+            handleTriggerItemClick(camera)
           )
         }
       }
-    }, [triggerItemRef])
+    }, [camera, triggerItemRef])
+
+    // useEffect(() => {
+    //   if (triggerItemRef.current) {
+    //     triggerItemRef.current.addEventListener('click', handleTriggerItemClick)
+    //   }
+
+    //   return () => {
+    //     if (triggerItemRef.current) {
+    //       triggerItemRef.current.removeEventListener(
+    //         'click',
+    //         handleTriggerItemClick
+    //       )
+    //     }
+    //   }
+    // }, [triggerItemRef])
 
     return (
       <>
-        {meshVisible.map((visible, index) => (
+         
           <mesh
-            key={index}
+            
             ref={meshRef}
             position={[0, 0, 0]}
             visible={meshVisible}
@@ -268,7 +267,7 @@ const GridToFullScreen = () => {
               side={DoubleSide}
             />
           </mesh>
-        ))}
+     
       </>
     )
   }

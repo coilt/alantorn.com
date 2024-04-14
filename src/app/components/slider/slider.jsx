@@ -104,7 +104,7 @@ export default function Slider({ onImageRef, onImageClick }) {
           id={`slider-${index}`}
           className='slider'
           ref={ref}
-                    onClick={(event) => handleSliderClick(event, index)}
+          onClick={(event) => handleSliderClick(event, index)}
           data-project-name={`cool-project-${index + 1}`}
         >
           <div className='titleCard'>
@@ -119,19 +119,7 @@ export default function Slider({ onImageRef, onImageClick }) {
               height: 'auto',
             }}
             ref={(ref) => onImageRef(index, ref)}
-            
           />
-
-          {/* <img
-            className='triggerItem'
-            src={cardImages[index]}
-            alt={`card${index + 1}`}
-            style={{
-              width: '100%',
-              height: 'auto',
-            }}
-            ref={(ref) => onImageRef(index, ref)}
-          /> */}
         </div>
       ))}
     </main>

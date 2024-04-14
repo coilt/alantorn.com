@@ -1,45 +1,58 @@
 'use client'
 
-import React, { useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, Environment, Float, ScrollControls } from '@react-three/drei'
-import { easing } from 'maath'
+import React, { useRef, useEffect } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { PresentationControls, Environment, Float } from '@react-three/drei'
 import Model from './Model'
 
-function Rig() {
-  useFrame((state, delta) => {
-    easing.damp3(
-      state.camera.position,
-      [
-        Math.sin(-state.pointer.x) * 5,
-        state.pointer.y * 3.5,
-        15 + Math.cos(state.pointer.x) * 10,
-      ],
-      0.2,
-      delta
-    )
-    state.camera.lookAt(0, 0, 0)
-  })
+function ScrollingModel() {
+  const { camera } = useThree()
 
-  return null
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      camera.position.y = -scrollTop / 100 // Adjust the divisor as needed
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [camera])
+
+  return (
+    <Float
+      speed={0.5}
+      rotationIntensity={1.2}
+      floatIntensity={0.8}
+    >
+      <group scale={0.4}> {/* Adjust the scale value as needed */}
+        <Model />
+      </group>
+    </Float>
+  )
 }
 
 export default function Hero() {
-  const canvasRef = useRef(null)
-
   return (
     <Canvas
-      style={{ backgroundColor: 'black', width: '100%', height: '100vh' }}
-      camera={{ position: [0, 0, 20], fov: 50 }}
+      style={{ backgroundColor: 'black', width: '100%', height: '100vh', pointerEvents: 'none' }}
     >
-      <ScrollControls pages={3} damping={0.1}>
-        <Environment preset="city" />
-        <spotLight position={[20, 20, 10]} penumbra={1} castShadow angle={0.2} />
-        <Float floatIntensity={2}>
-          <Model />
-        </Float>
-        <Rig />
-      </ScrollControls>
+      <ambientLight intensity={0.5} />
+      <pointLight position={[10, 10, 10]} />
+      <PresentationControls
+        global
+        rotation={[0.13, 0.1, 0]}
+        polar={[-0.4, 0.2]}
+        azimuth={[-1, 0.75]}
+        config={{ mass: 2, tension: 400 }}
+        snap={{ mass: 4, tension: 400 }}
+        events={{ enabled: true, pointerEvents: 'auto' }}
+      >
+        <ScrollingModel />
+      </PresentationControls>
+      <perspectiveCamera position={[0, 0, 5]} />
+      <Environment preset="city" />
     </Canvas>
   )
 }

@@ -3,12 +3,11 @@ import React, { useRef } from 'react'
 import Navbar from './components/Navbar'
 import styles from './page.module.css'
 import dynamic from 'next/dynamic'
-import Slider from './components/slider/slider'
 import { ReactLenis, useLenis } from '@studio-freight/react-lenis'
 import GridToFullScreen from './components/GridToFullScreen' 
  
 
-const Hero = dynamic(() => import('./components/SimpleScene'), {
+const Hero = dynamic(() => import('./components/Hero'), {
   ssr: false,
 })
 

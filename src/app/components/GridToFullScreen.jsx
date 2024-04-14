@@ -20,6 +20,8 @@ const vertexShader = createVertex
 import './lib/base.css'
 
 const GridToFullScreen = () => {
+
+  // mesh textures
   const triggerItems = [
     {
       src: '/card_01.png',
@@ -80,7 +82,38 @@ const GridToFullScreen = () => {
     setClickedIndex(index)
     const canvas = canvasRef.current
     canvas.style.zIndex = '2'
+  
+    // Start the mesh animation immediately
+    if (meshRef.current) {
+      meshRef.current.material.uniforms.uProgress.value = 0
+      gsap.to(meshRef.current.material.uniforms.uProgress, {
+        value: 1,
+        duration: 1,
+        ease: 'power2.out',
+        onUpdate: () => {
+          // Check the progress of the mesh animation
+          const progress = meshRef.current.material.uniforms.uProgress.value
+          if (progress >= 0.8) {
+            // Hide the clicked image when the mesh animation reaches 80% progress
+            const clickedImage = itemsRef.current[index]
+            if (clickedImage) {
+              clickedImage.style.visibility = 'hidden'
+            }
+          }
+        },
+        onComplete: () => {
+          // Ensure the clicked image is hidden when the mesh animation completes
+          const clickedImage = itemsRef.current[index]
+          if (clickedImage) {
+            clickedImage.style.visibility = 'hidden'
+          }
+        },
+      })
+    }
   }
+ 
+
+  
 
   // R3F scene
   function Setup({ meshRef, clickedIndex }) {

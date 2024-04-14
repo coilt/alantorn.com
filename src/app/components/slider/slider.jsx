@@ -35,21 +35,25 @@ export default function Slider({ onImageRef, onImageClick }) {
 
   const handleSliderClick = (event, index) => {
     const slider = event.currentTarget
-
     const scrollTrigger = ScrollTrigger.getById(`slider-${index}-trigger`)
-
     if (scrollTrigger) {
       const scrollToPosition = scrollTrigger.start
-
       gsap.to(window, {
-        duration: 1,
+        duration: 0.5,
         scrollTo: {
           y: scrollToPosition,
           autoKill: false,
         },
-        ease: 'power3',
+        ease: 'power3.out',
         onComplete: () => {
-          onImageClick(index)
+          // Delay hiding the slider by a specified amount of time
+          setTimeout(() => {
+            slider.style.visibility = 'hidden'
+          }, 100) // Adjust the delay as needed (in milliseconds)
+  
+          onImageClick(index, () => {
+            // Call the callback function after the mesh animation starts
+          })
         },
       })
     } else {
@@ -69,7 +73,7 @@ export default function Slider({ onImageRef, onImageClick }) {
           id: `slider-${index}-trigger`,
           pin: true,
           trigger: slider,
-          markers: true,
+          markers: false,
           scrub: 2,
           start: 'top 10%',
           end: `+=${slider.offsetHeight}`,

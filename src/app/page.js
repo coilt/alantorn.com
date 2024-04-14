@@ -6,8 +6,9 @@ import dynamic from 'next/dynamic'
 import Slider from './components/slider/slider'
 import { ReactLenis, useLenis } from '@studio-freight/react-lenis'
 import GridToFullScreen from './components/GridToFullScreen' 
+ 
 
-const Hero = dynamic(() => import('./components/Hero'), {
+const Hero = dynamic(() => import('./components/SimpleScene'), {
   ssr: false,
 })
 
@@ -20,7 +21,7 @@ export default function Home() {
         
          <Navbar />
         <div className={styles.heroContainer}>
-          
+          <Hero />
         </div>
         <GridToFullScreen triggerItemRef={triggerItemRef} />  
         <div ref={triggerItemRef}>Trigger Item</div>

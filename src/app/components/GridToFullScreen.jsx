@@ -6,6 +6,8 @@ import { useTexture } from '@react-three/drei'
 import { Vector2, Vector4, DoubleSide } from 'three'
 import { gsap } from 'gsap'
 import Slider from './slider/slider'
+import Hero from './Hero.jsx'
+ 
 
 import {
   activations,
@@ -246,6 +248,7 @@ const GridToFullScreen = () => {
           camera={{ fov: 50, position: [0, 0, 20] }}
           style={{ width: '100%', height: '100%', position: 'absolute' }}
         >
+           
           <Suspense fallback={null}>
             <Setup meshRef={meshRef} clickedIndex={clickedIndex} />
           </Suspense>
